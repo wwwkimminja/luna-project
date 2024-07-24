@@ -6,11 +6,17 @@ import CreateAccount from "./routes/create-account";
 import Login from "./routes/login";
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
+import styled from "styled-components";
+import ProtectedRoute from "./components/protected-route";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "",
@@ -43,12 +49,18 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const Wrapper = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+`;
+
 function App() {
   return (
-    <>
+    <Wrapper>
       <GlobalStyle />
       <RouterProvider router={router} />
-    </>
+    </Wrapper>
   );
 }
 

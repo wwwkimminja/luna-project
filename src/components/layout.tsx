@@ -1,12 +1,13 @@
-import { Outlet } from "react-router-dom";
+import { auth } from "../firebase";
 
-function Layout() {
+function Home() {
+  const logOut = () => {
+    auth.signOut();
+  };
   return (
-    <>
-      <h2>layout</h2>
-      <Outlet />
-    </>
+    <h1>
+      <button onClick={logOut}>ログアウト</button>
+    </h1>
   );
 }
-
-export default Layout;
+export default Home;
