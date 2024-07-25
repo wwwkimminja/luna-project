@@ -55,6 +55,9 @@ export const CheckBoxWrapper = styled.div`
   a {
     color: white;
   }
+  input[type="checkbox"] {
+    accent-color: rgb(200, 108, 236);
+  }
 `;
 
 export const Button = styled.button`
@@ -77,9 +80,23 @@ export const Error = styled.span`
 `;
 
 export const Switcher = styled.span`
-margin-top: 20px;
-a {
-  color: rgb(200, 108, 236);
-}
-`
+  margin-top: 20px;
+  a {
+    color: rgb(200, 108, 236);
+  }
+`;
 
+export const AttachFileButton = styled.label`
+  padding: 10px 0px;
+  color: #9b59b6;
+  text-align: center;
+  border-radius: 20px;
+  border: 1px solid#9b59b6;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+`;
+
+export const AttachFileInput = styled.input`
+  display: none;
+`;

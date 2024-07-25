@@ -10,7 +10,20 @@ import {
 import { auth } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
-import { Button, CheckBoxWrapper, Container, Error, Form, RadioWrapper, StyledInput, Switcher, Title, Wrapper } from "../components/auth-components";
+import {
+  AttachFileButton,
+  AttachFileInput,
+  Button,
+  CheckBoxWrapper,
+  Container,
+  Error,
+  Form,
+  RadioWrapper,
+  StyledInput,
+  Switcher,
+  Title,
+  Wrapper,
+} from "../components/auth-components";
 import { LABEL } from "../constants/auth";
 
 type FormValues = {
@@ -89,11 +102,12 @@ const CheckBox = ({
 function CreateAccount() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [error,setError]=useState<string|null>(null)
+  const [error, setError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<FormValues>({
     defaultValues: {
       name: "",
@@ -105,8 +119,10 @@ function CreateAccount() {
       profileImage: "",
     },
   });
+
+  const file = watch("profileImage");
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setError(null)
+    setError(null);
     try {
       setIsLoading(true);
       const credentials = await createUserWithEmailAndPassword(
@@ -119,8 +135,8 @@ function CreateAccount() {
       });
       navigate("/");
     } catch (e) {
-      if(e instanceof FirebaseError){
-        setError(e.message)
+      if (e instanceof FirebaseError) {
+        setError(e.message);
       }
     } finally {
       setIsLoading(false);
@@ -152,7 +168,16 @@ function CreateAccount() {
           {errors.gender ? <Error>{errors.gender.message}</Error> : null}
         </fieldset>
 
-        <Input name="profileImage" register={register} type="file" />
+        <span>{LABEL.profileImage}</span>
+        <AttachFileButton htmlFor="file">
+          {file ? "Photo added 💜" : "Add photo"}
+        </AttachFileButton>
+        <AttachFileInput
+          {...register("profileImage")}
+          type="file"
+          id="file"
+          accept="image/*"
+        />
         <Input name="birthday" register={register} type="date" />
 
         <fieldset>
@@ -170,13 +195,13 @@ function CreateAccount() {
               利用契約
             </a>
           </CheckBox>
-        </fieldset> 
+        </fieldset>
         {error ? <Error>{error}</Error> : null}
 
         <Button type="submit">{isLoading ? "Loading..." : "登録"}</Button>
       </Form>
       <Switcher>
-      Already have an account ? <Link to="/login">Log in &rarr;</Link>
+        Already have an account ? <Link to="/login">Log in &rarr;</Link>
       </Switcher>
     </Container>
   );
