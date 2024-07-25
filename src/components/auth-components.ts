@@ -75,8 +75,9 @@ export const Button = styled.button`
   }
 `;
 export const Error = styled.span`
+font-size: 14px;
   font-weight: 600;
-  color: red;
+  color:  rgb(192, 57, 43);
 `;
 
 export const Switcher = styled.span`

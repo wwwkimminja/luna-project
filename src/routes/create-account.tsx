@@ -1,5 +1,5 @@
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FieldError,
   Path,
@@ -7,7 +7,7 @@ import {
   useForm,
   UseFormRegister,
 } from "react-hook-form";
-import { auth } from "../firebase";
+import { auth, db, storage } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
 import {
@@ -25,6 +25,8 @@ import {
   Wrapper,
 } from "../components/auth-components";
 import { LABEL } from "../constants/auth";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { addDoc, collection, updateDoc } from "firebase/firestore";
 
 type FormValues = {
   name: string;
@@ -35,14 +37,14 @@ type FormValues = {
   female: boolean;
   male: boolean;
   agreement: boolean;
-  profileImage?: string;
+  profileImage?: FileList;
 };
 
 type InputProps = {
   name: Path<FormValues>;
   register: UseFormRegister<FormValues>;
   error?: FieldError;
-  required?: boolean;
+  required?: string;
 };
 type RadioInputProps = {
   label: string;
@@ -65,7 +67,7 @@ const Input = ({
 }) => (
   <Wrapper>
     <label htmlFor={name}>{LABEL[name]}</label>
-    <StyledInput id={name} type={type} {...register(name, { required })} />
+    <StyledInput id={name} type={type} {...register(name, { required})} />
     {error ? <Error>{error.message}</Error> : null}
   </Wrapper>
 );
@@ -108,6 +110,7 @@ function CreateAccount() {
     handleSubmit,
     formState: { errors },
     watch,
+    reset,
   } = useForm<FormValues>({
     defaultValues: {
       name: "",
@@ -116,24 +119,51 @@ function CreateAccount() {
       birthday: undefined,
       gender: undefined,
       agreement: false,
-      profileImage: "",
+      profileImage: undefined,
     },
   });
 
   const file = watch("profileImage");
+  console.log(file,errors)
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const { name, email, password, birthday, gender, agreement, profileImage } =
+      data;
     setError(null);
     try {
       setIsLoading(true);
       const credentials = await createUserWithEmailAndPassword(
         auth,
-        data.email,
-        data.password,
+        email,
+        password,
       );
+
+      const doc = await addDoc(collection(db, "users"), {
+        name,
+        birthday,
+        gender,
+        agreement,
+        createAt: Date.now(),
+        userId: credentials.user.uid,
+      });
+
+      let url;
+      if (profileImage && profileImage.length === 1) {
+        const locationRef = ref(
+          storage,
+          `users/${credentials.user.uid}-${name}`,
+        );
+        const result = await uploadBytes(locationRef, profileImage[0]);
+        url = await getDownloadURL(result.ref);
+        await updateDoc(doc, {
+          photoUrl: url,
+        });
+      }
       await updateProfile(credentials.user, {
-        displayName: data.name,
+        displayName: name,
+        photoURL:url
       });
       navigate("/");
+      reset();
     } catch (e) {
       if (e instanceof FirebaseError) {
         setError(e.message);
@@ -147,9 +177,9 @@ function CreateAccount() {
     <Container>
       <Title>新規会員登録</Title>
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <Input name="name" register={register} required />
-        <Input name="email" register={register} required type="email" />
-        <Input name="password" register={register} required type="password" />
+        <Input name="name" register={register} required="入力してください" error={errors.name}/>
+        <Input name="email" register={register} required="入力してください." type="email" error={errors.email}/>
+        <Input name="password" register={register} required="入力してください" type="password" error={errors.password}/>
 
         <fieldset>
           <legend>{LABEL.gender}</legend>
@@ -170,7 +200,7 @@ function CreateAccount() {
 
         <span>{LABEL.profileImage}</span>
         <AttachFileButton htmlFor="file">
-          {file ? "Photo added 💜" : "Add photo"}
+          {file?.length ? "Photo added 💜" : "Add photo"}
         </AttachFileButton>
         <AttachFileInput
           {...register("profileImage")}
@@ -185,8 +215,9 @@ function CreateAccount() {
           <CheckBox
             name="agreement"
             register={register}
-            required
+            required="チェックをしてください"
             label="同意します"
+            error={errors.agreement}
           >
             <a
               href="https://luna-matching.notion.site/a714620bbd8740d1ac98f2326fbd0bbc"
