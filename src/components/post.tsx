@@ -47,7 +47,6 @@ function Post({ id,userId, username, post, createAt }: PostType) {
     } 
   };
   const date = new Date(createAt).getFullYear() + "." + (new Date(createAt).getMonth()+1) + "." + new Date(createAt).getDate()
-  console.log(post.length)
   return (
     <Wrapper>
       <div>
