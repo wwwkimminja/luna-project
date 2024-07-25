@@ -1,5 +1,10 @@
-function Home() {
-  return <h2>Home</h2>;
-}
+import PostForm from "../components/post-form";
 
+function Home() {
+  return (
+    <div>
+      <PostForm />
+    </div>
+  );
+}
 export default Home;
