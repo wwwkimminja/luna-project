@@ -49,11 +49,7 @@ type FormValue = {
 function PostForm() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValue>({
+  const { register, handleSubmit, reset } = useForm<FormValue>({
     defaultValues: { post: "" },
   });
   const onSubmit: SubmitHandler<FormValue> = async ({ post }) => {
@@ -68,7 +64,7 @@ function PostForm() {
         username: user.displayName || "anonymous",
         userId: user.uid,
       });
-      //
+      reset();
     } catch (e) {
       console.log(e);
     } finally {
