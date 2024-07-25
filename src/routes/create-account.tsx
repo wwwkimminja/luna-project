@@ -7,85 +7,11 @@ import {
   useForm,
   UseFormRegister,
 } from "react-hook-form";
-import styled from "styled-components";
 import { auth } from "../firebase";
-import { useNavigate } from "react-router-dom";
-
-const Container = styled.div`
-  height: 100%;
-  width: 420px;
-  padding: 50px 0px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const Title = styled.h1`
-  font-size: 36px;
-`;
-
-const Form = styled.form`
-  width: 100%;
-  margin-top: 50px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  position: relative;
-`;
-const StyledInput = styled.input`
-  width: 100%;
-  padding: 10px 20px;
-  border-radius: 5px;
-  border: none;
-  font-size: 16px;
-`;
-
-const RadioWrapper = styled.div`
-  display: flex;
-  padding: 10px 10px;
-  label {
-    padding-left: 10px;
-    width: 30px;
-  }
-`;
-
-const CheckBoxWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  padding: 20px;
-  a {
-    color: white;
-  }
-`;
-
-const Button = styled.button`
-  width: 100%;
-  padding: 10px 20px;
-  border-radius: 50px;
-  border: none;
-  font-size: 16px;
-  margin-top: 50px;
-  transition: all 0.5s ease;
-
-  &:hover {
-    cursor: pointer;
-    background-color: rgb(200, 108, 236);
-  }
-`;
-const Error = styled.span`
-  font-weight: 600;
-  color: red;
-`;
+import { Link, useNavigate } from "react-router-dom";
+import { FirebaseError } from "firebase/app";
+import { Button, CheckBoxWrapper, Container, Error, Form, RadioWrapper, StyledInput, Switcher, Title, Wrapper } from "../components/auth-components";
+import { LABEL } from "../constants/auth";
 
 type FormValues = {
   name: string;
@@ -98,18 +24,6 @@ type FormValues = {
   agreement: boolean;
   profileImage?: string;
 };
-
-const LABEL = {
-  name: "ユーザー名",
-  email: "メールアドレス",
-  password: "パスワード",
-  birthday: "誕生日",
-  gender: "性別",
-  female: "女",
-  male: "男",
-  agreement: "利用規約への同意",
-  profileImage: "プロフィールアイコン",
-} as const;
 
 type InputProps = {
   name: Path<FormValues>;
@@ -175,6 +89,7 @@ const CheckBox = ({
 function CreateAccount() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [error,setError]=useState<string|null>(null)
   const {
     register,
     handleSubmit,
@@ -191,6 +106,7 @@ function CreateAccount() {
     },
   });
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    setError(null)
     try {
       setIsLoading(true);
       const credentials = await createUserWithEmailAndPassword(
@@ -203,7 +119,9 @@ function CreateAccount() {
       });
       navigate("/");
     } catch (e) {
-      //setError
+      if(e instanceof FirebaseError){
+        setError(e.message)
+      }
     } finally {
       setIsLoading(false);
     }
@@ -252,10 +170,14 @@ function CreateAccount() {
               利用契約
             </a>
           </CheckBox>
-        </fieldset>
+        </fieldset> 
+        {error ? <Error>{error}</Error> : null}
 
         <Button type="submit">{isLoading ? "Loading..." : "登録"}</Button>
       </Form>
+      <Switcher>
+      Already have an account ? <Link to="/login">Log in &rarr;</Link>
+      </Switcher>
     </Container>
   );
 }
