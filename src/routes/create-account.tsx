@@ -1,5 +1,5 @@
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   FieldError,
   Path,
