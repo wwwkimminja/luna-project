@@ -8,6 +8,9 @@ import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
 import styled from "styled-components";
 import ProtectedRoute from "./components/protected-route";
+import LoadingScreen from "./components/loading-screen";
+import { useEffect, useState } from "react";
+import { auth } from "./firebase";
 
 const router = createBrowserRouter([
   {
@@ -56,10 +59,18 @@ const Wrapper = styled.div`
 `;
 
 function App() {
+  const [isLoading, setLoading] = useState(true);
+  const init = async () => {
+    await auth.authStateReady();
+    setLoading(false);
+  };
+  useEffect(() => {
+    init();
+  }, []);
   return (
     <Wrapper>
       <GlobalStyle />
-      <RouterProvider router={router} />
+      {isLoading ? <LoadingScreen /> : <RouterProvider router={router} />}
     </Wrapper>
   );
 }
