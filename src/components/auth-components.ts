@@ -7,6 +7,10 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media screen and (max-width: 430px){
+    width: 90%;
+  }
 `;
 
 export const Title = styled.h1`

@@ -6,17 +6,29 @@ import { IconHome, IconLogOut, IconProfile } from "../assets/Icons";
 const Wrapper = styled.div`
   display: grid;
   gap: 50px;
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: 1fr 10.5fr 0.5fr;
   height: 100vh;
   padding: 50px 0px;
   width: 100%;
   max-width: 860px;
+  @media screen and (max-width: 860px){
+    display: flex;
+    flex-direction:column;
+    padding: 10px;
+    gap:10px
+  }
 `;
+
 const Menu = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  @media screen and (max-width: 860px){
+    display: flex;
+    flex-direction:row;
+    justify-content: end;
+  }
 `;
 
 const MenuItem = styled.div<{ active?: boolean }>`
